@@ -1,0 +1,22 @@
+.timeslots{
+    border:1px solid #ccc;
+    
+}
+
+.left-col{
+    background-color: white;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.right-col{
+    background-color:rgb(247, 244, 248);
+    border-left:1px solid #ccc;
+     padding-top:30px;
+     cursor:pointer;
+    padding-bottom:30px;    
+}
+.right-col.booked {
+    background-color: rgb(212, 239, 212) !important;
+}
