@@ -1,63 +1,100 @@
-import React, { useState, useContext } from "react";
-import { DataContext } from "../../App";
+import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import "./BookingSlotModal.css";
 
-function Modal({ selectdIndex, onClose, onBookingSlot }) {
+function BookingSlotModal({ selectedIndex, onClose, onBookingSlot }) {
   const [formState, setFormState] = useState({
-    title: '',
-    desc: '',
-    location: '',
-    index: selectdIndex
-  })
+    title:"",
+    desc:"",
+    location:"",
+    slot:"",
+    index: selectedIndex
+  });
+    
   const [error, setError] = useState();
-  // const [title, setTitle] = useState(); 
-  // const [desc, setDesc] = useState();
-  // const [location, setLocation] = useState();
-
-  //get from context defined in App js - we don't need useContext as this error handling should be internal to this component.
-  // const { checkForValues, setCheckForValues } = useContext(DataContext);
-
-  const onBookingTimeSlot = async (e) => {
-    // console.log("When values have not been checked: " + checkForValues);
-    /* 
-    * we don't need this because this is used only for preventing the default behaviuor of any element 
-    * e.g. if will click link usually it modifies the url if we want prevent that we can use this methods
-    */
+  const[message,setMessage] = useState("");
+  
+  const onBookingTimeSlot  = async (e) => {
+    //console.log("When values have not been checked: " + checkForValues);
     e.preventDefault();
-    if (validateInputFields()) {
-      console.log('formstate', formState)
-      onBookingSlot(formState)
+
+    if(validateInputFields()){
+      // console.log('formState', formState)
+     
+      console.log("Validation result:", validateInputFields());
+
+    }
+
+    try{
+      const response = await fetch("http://localhost:8080/booking",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(formState)
+      })
+      const result = await response.text();
+       console.log("Server response:", result);
+
+      if(response.ok){
+        setMessage("Slot Booked");
+         onBookingSlot(formState)
+      }else{
+        setMessage("This slot is not available to book, please select a different slot");
+      }
+    }catch(err) {
+      setError("Failed to book this slot");
     }
   };
-
   function validateInputFields() {
-    const { title, desc, location } = formState
+    const {title, desc, location,slot} = formState
     const isTitlePresent = title.trim() !== ''
     const isDescriptionPresent = desc.trim() !== ''
     const isLocationPresent = location.trim() !== ''
-
-    const hasError = !(isTitlePresent && isDescriptionPresent && isLocationPresent)
-    setError(hasError ? "Please enter the missing details" : undefined)
-    return !hasError
+    const isSlotPresent = slot.trim() !== ''
+    
+ 
+    const hasError = !(isTitlePresent && isDescriptionPresent && isLocationPresent && isSlotPresent )
+    setError(hasError ? "Please enter the missign details" : undefined)
+    return !hasError;
   }
-
   return (
     <div className="popUp">
       <h5>
-        Book a meeting: Selected Timeslot: {selectdIndex}-{selectdIndex + 1}
+        Book a meeting: Selected Timeslot: {selectedIndex}-{selectedIndex + 1}
       </h5>
-      <Form className="booking-form">
+      <Form onSubmit={onBookingTimeSlot}  className="booking-form">
+        <Form.Group>
+          
+          <Form.Select id="selectTime" name="slot" onChange={
+            (e)=>setFormState({...formState,
+            slot:e.target.value
+            })}>
+            <option>
+                Select a time slot for the meeting
+            </option>
+            <option value="0-1">0-1</option>
+            <option value="1-2">1-2</option>
+            <option value="2-3">2-3</option>
+            <option value="3-4">3-4</option>
+            <option value="0-1">5-6</option>
+            <option value="1-2">6-7</option>
+            <option value="2-3">7-8</option>
+            <option value="3-4">8-9</option>
+            
+        </Form.Select> 
+    
+        </Form.Group>
+    
         <Form.Group>
           <Form.Label htmlFor="bookingTitle">Add Title</Form.Label>
           <Form.Control
             required
             id="bookingTitle"
             type="text"
+            name="title"
             onChange={(e) => setFormState({
               ...formState,
-              title: e.target.value
+              title:e.target.value
             })}
           />
         </Form.Group>
@@ -68,9 +105,10 @@ function Modal({ selectdIndex, onClose, onBookingSlot }) {
             required
             type="text"
             id="bookingDesc"
+            name="desc"
             onChange={(e) => setFormState({
               ...formState,
-              desc: e.target.value
+              desc:e.target.value
             })}
           />
         </Form.Group>
@@ -81,26 +119,28 @@ function Modal({ selectdIndex, onClose, onBookingSlot }) {
             required
             id="bookingLocation"
             type="text"
+            name="location"
             onChange={(e) => setFormState({
               ...formState,
-              location: e.target.value
+              location:e.target.value
             })}
           />
         </Form.Group>
 
         <Form.Group>
-          {/* {hiddenMessage &&<Form.Label  style={{color:"green",marginBottom:"1rem"}} id="hiddenMessage" >{hiddenMessage}</Form.Label>} */}
+         
           {error && (
             <Form.Label style={{ color: "red", marginBottom: "1rem" }}>
               {error}
             </Form.Label>
           )}
+          {message && <p>{message}</p>}
         </Form.Group>
         <Button
           variant="primary"
           type="submit"
           className="buttonStyles"
-          onClick={onBookingTimeSlot}
+         
         >
           Select this time
         </Button>
@@ -116,4 +156,4 @@ function Modal({ selectdIndex, onClose, onBookingSlot }) {
   );
 }
 
-export default Modal;
+export default BookingSlotModal;
