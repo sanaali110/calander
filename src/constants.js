@@ -1,0 +1,1 @@
+export const timeslots = 24;

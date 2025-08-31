@@ -26,5 +26,12 @@
     "title": "Meeting",
     "desc": "catchup",
     "location": "remote"
+  },
+  {
+    "id": 5,
+    "slot": "11-12",
+    "title": "react tutorials",
+    "desc": "description",
+    "location": "ireland"
   }
 ]

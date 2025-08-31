@@ -2,89 +2,79 @@ import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import "./BookingSlotModal.css";
+import { timeslots } from "../../constants";
 
 function BookingSlotModal({ selectedIndex, onClose, onBookingSlot }) {
   const [formState, setFormState] = useState({
-    title:"",
-    desc:"",
-    location:"",
-    slot:"",
+    title: "",
+    desc: "",
+    location: "",
+    slot: "",
     index: selectedIndex
   });
-    
+
   const [error, setError] = useState();
-  const[message,setMessage] = useState("");
-  
-  const onBookingTimeSlot  = async (e) => {
-    //console.log("When values have not been checked: " + checkForValues);
+  const [message, setMessage] = useState("");
+
+  const onBookingTimeSlot = async (e) => {
     e.preventDefault();
-
-    if(validateInputFields()){
-      // console.log('formState', formState)
-     
+    if (validateInputFields()) {
       console.log("Validation result:", validateInputFields());
-
     }
 
-    try{
-      const response = await fetch("http://localhost:8080/booking",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(formState)
+    try {
+      const response = await fetch("http://localhost:8080/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formState)
       })
       const result = await response.text();
-       console.log("Server response:", result);
+      console.log("Server response:", result);
 
-      if(response.ok){
+      if (response.ok) {
         setMessage("Slot Booked");
-         onBookingSlot(formState)
-      }else{
+        onBookingSlot(formState)
+      } else {
         setMessage("This slot is not available to book, please select a different slot");
       }
-    }catch(err) {
+    } catch (err) {
       setError("Failed to book this slot");
     }
   };
+
   function validateInputFields() {
-    const {title, desc, location,slot} = formState
+    const { title, desc, location, slot } = formState
     const isTitlePresent = title.trim() !== ''
     const isDescriptionPresent = desc.trim() !== ''
     const isLocationPresent = location.trim() !== ''
     const isSlotPresent = slot.trim() !== ''
-    
- 
-    const hasError = !(isTitlePresent && isDescriptionPresent && isLocationPresent && isSlotPresent )
+    const hasError = !(isTitlePresent && isDescriptionPresent && isLocationPresent && isSlotPresent)
     setError(hasError ? "Please enter the missign details" : undefined)
     return !hasError;
   }
+
   return (
     <div className="popUp">
       <h5>
         Book a meeting: Selected Timeslot: {selectedIndex}-{selectedIndex + 1}
       </h5>
-      <Form onSubmit={onBookingTimeSlot}  className="booking-form">
+      <Form onSubmit={onBookingTimeSlot} className="booking-form">
         <Form.Group>
-          
+
           <Form.Select id="selectTime" name="slot" onChange={
-            (e)=>setFormState({...formState,
-            slot:e.target.value
+            (e) => setFormState({
+              ...formState,
+              slot: e.target.value
             })}>
             <option>
-                Select a time slot for the meeting
+              Select a time slot for the meeting
             </option>
-            <option value="0-1">0-1</option>
-            <option value="1-2">1-2</option>
-            <option value="2-3">2-3</option>
-            <option value="3-4">3-4</option>
-            <option value="0-1">5-6</option>
-            <option value="1-2">6-7</option>
-            <option value="2-3">7-8</option>
-            <option value="3-4">8-9</option>
-            
-        </Form.Select> 
-    
+            {Array.from({ length: timeslots }).map((_, index) => {
+              const slot = `${index}-${index + 1}`
+              return <option value={slot}>{slot}</option>
+            })}
+          </Form.Select>
         </Form.Group>
-    
         <Form.Group>
           <Form.Label htmlFor="bookingTitle">Add Title</Form.Label>
           <Form.Control
@@ -94,7 +84,7 @@ function BookingSlotModal({ selectedIndex, onClose, onBookingSlot }) {
             name="title"
             onChange={(e) => setFormState({
               ...formState,
-              title:e.target.value
+              title: e.target.value
             })}
           />
         </Form.Group>
@@ -108,7 +98,7 @@ function BookingSlotModal({ selectedIndex, onClose, onBookingSlot }) {
             name="desc"
             onChange={(e) => setFormState({
               ...formState,
-              desc:e.target.value
+              desc: e.target.value
             })}
           />
         </Form.Group>
@@ -122,13 +112,13 @@ function BookingSlotModal({ selectedIndex, onClose, onBookingSlot }) {
             name="location"
             onChange={(e) => setFormState({
               ...formState,
-              location:e.target.value
+              location: e.target.value
             })}
           />
         </Form.Group>
 
         <Form.Group>
-         
+
           {error && (
             <Form.Label style={{ color: "red", marginBottom: "1rem" }}>
               {error}
@@ -140,7 +130,7 @@ function BookingSlotModal({ selectedIndex, onClose, onBookingSlot }) {
           variant="primary"
           type="submit"
           className="buttonStyles"
-         
+
         >
           Select this time
         </Button>

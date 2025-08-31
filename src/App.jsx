@@ -7,17 +7,15 @@ import dayjs from "dayjs";
 import moment from "moment";
 
 function App() {
-
-  
   return (
-      <Container>
-        <div className="calendar">
-          <h1>Calendar</h1>
-          <h5>Date: {dayjs().format('DD/MM/YYYY')}</h5>
-          <p>Month: {moment().format('MMMM')}</p>
-          <Timeslots  />
-        </div>
-      </Container>
+    <Container>
+      <div className="calendar">
+        <h1>Calendar</h1>
+        <h5>Date: {dayjs().format('DD/MM/YYYY')}</h5>
+        <p>Month: {moment().format('MMMM')}</p>
+        <Timeslots />
+      </div>
+    </Container>
   );
 }
 
